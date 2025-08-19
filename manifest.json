@@ -1,0 +1,24 @@
+{
+  "name": "حاسبة صحية | Health Calculator",
+  "short_name": "HealthCalc",
+  "start_url": "/health-calculator-pwa/index.html",
+  "scope": "/health-calculator-pwa/",
+  "display": "standalone",
+  "background_color": "#0b0c10",
+  "theme_color": "#0ea5e9",
+  "icons": [
+    {
+      "src": "/health-calculator-pwa/assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/health-calculator-pwa/assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "lang": "ar"
+}
