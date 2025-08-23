@@ -1,262 +1,328 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#0ea5e9">
-<title>حاسبة صحية | Health Calculator (PWA)</title>
-<style>
-  :root { --bg:#0b0c10; --card:#16181d; --text:#e6e6e6; --muted:#9aa0a6; --accent:#0ea5e9; --border:#272b33; }
-  html, body { margin:0; padding:0; background:var(--bg); color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Noto Naskh Arabic UI","Noto Sans Arabic",Arial,sans-serif;}
-  .wrap { max-width: 560px; margin: 0 auto; padding: 12px; }
-  header { display:flex; align-items:center; justify-content:space-between; gap:8px; padding: 8px 0; position: sticky; top:0; background:var(--bg); z-index: 10; }
-  .segmented { display:inline-flex; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
-  .segmented button { background:transparent; color:var(--text); border:0; padding:6px 10px; cursor:pointer; }
-  .segmented button.active { background:var(--card); }
-  .tabs { display:flex; gap:8px; }
-  .tab { flex:1; text-align:center; padding:10px 8px; border-radius:10px; border:1px solid var(--border); cursor:pointer; }
-  .tab.active { background:var(--accent); color:#fff; border-color:transparent; }
-  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; margin: 10px 0; }
-  label { display:block; margin-top:8px; color:var(--muted); }
-  input[type="number"], input[type="text"] { width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:#0f1115; color:var(--text); }
-  input[type="range"] { width:100%; }
-  .row { display:flex; gap:8px; }
-  .result-row { display:flex; justify-content:space-between; margin: 8px 0; }
-  .value { font-weight: 700; }
-  .hint { color: var(--muted); font-size: 0.9rem; }
-  .footer { color: var(--muted); font-size: 0.85rem; }
-  .logo { width:44px; height:44px; border-radius:10px; background:radial-gradient(circle at 30% 30%, #22c55e, #0ea5e9); display:flex; align-items:center; justify-content:center; font-weight:900; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>BodyTrack — مؤشرات مقارنة بالمثالي (ملف واحد)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:'Tajawal',sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);color:#222}
+    .container{min-height:100vh;background:#fff;padding:18px 16px}
+    .header{background:linear-gradient(135deg,#007AFF,#0056b3);color:#fff;border-radius:14px;padding:18px;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.12)}
+    .header h1{margin:0 0 6px;font-size:22px}
+    .subtitle{opacity:.9;font-size:14px}
+    .grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:14px}
+    @media(min-width:900px){.grid{grid-template-columns:1fr 1fr}}
+    .card{background:#fff;border:1px solid #e9ecef;border-radius:14px;padding:14px;box-shadow:0 2px 14px rgba(0,0,0,.06)}
+    h3{margin:0 0 10px;font-size:16px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .row-3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .field{background:#f8f9fa;border:1px solid #e9ecef;border-radius:10px;padding:10px}
+    .field label{display:block;font-size:13px;color:#555;margin-bottom:6px}
+    .field input[type=number]{width:100%;border:none;background:transparent;font-size:16px;outline:none;text-align:center}
+    .range-wrap{padding:8px 0}
+    .range-val{font-weight:800;color:#007AFF;text-align:center;margin:6px 0}
+    input[type=range]{width:100%;height:6px;border-radius:3px;background:#dee2e6;outline:none;-webkit-appearance:none}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#007AFF;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+    .radios{display:flex;gap:8px;flex-wrap:wrap}
+    .radio{flex:1;min-width:90px;border:2px solid #dee2e6;border-radius:10px;text-align:center;padding:10px;cursor:pointer;transition:.15s;background:#fff}
+    .radio input{display:none}
+    .radio input:checked+span{background:#007AFF;color:#fff;padding:3px 10px;border-radius:8px}
+    .btn{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#007AFF,#0056b3);color:#fff;font-weight:800;cursor:pointer;box-shadow:0 6px 16px rgba(0,122,255,.25)}
+    .btn.secondary{background:linear-gradient(135deg,#6c757d,#495057)}
+    .btn.danger{background:linear-gradient(135deg,#FF5252,#D50000)}
+    .small{font-size:12px;color:#6c757d}
+    .stat{display:flex;align-items:center;justify-content:space-between;margin:6px 0}
+    .stat .val{font-weight:800}
+    .bar{position:relative;height:14px;background:#edf1f4;border-radius:999px;overflow:hidden}
+    .fill{height:100%;width:0;background:linear-gradient(90deg,#29b6f6,#00c853)}
+    .ticks{display:flex;justify-content:space-between;font-size:11px;color:#6c757d;margin-top:4px}
+    .band{position:absolute;top:0;bottom:0;background:rgba(255,193,7,.25)}
+    .kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .kpi-box{background:#f7f9fc;border:1px solid #e9ecef;border-radius:10px;padding:10px;text-align:center}
+    .kpi-box .k{font-size:12px;color:#6c757d}
+    .kpi-box .v{font-size:18px;font-weight:800;color:#007AFF}
+    .list{max-height:220px;overflow:auto;border:1px dashed #e0e6eb;border-radius:10px;padding:8px;background:#fbfcfd}
+    .item{display:flex;justify-content:space-between;border-bottom:1px solid #eef2f5;padding:8px 4px}
+    .item:last-child{border-bottom:none}
+    .sp{height:8px}
+  </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div style="display:flex; align-items:center; gap:10px;">
-      <div class="logo">HC</div>
-      <div>
-        <div style="font-weight:700;" id="brand">حاسبة صحية</div>
-        <div class="hint" id="team" style="font-size:12px;">Binhawash — Eng:M.A</div>
+  <div class="container">
+    <div class="header">
+      <h1>BodyTrack — مؤشرات مقارنة بالمثالي</h1>
+      <div class="subtitle">أدخل بياناتك وشاهد موقعك الحالي بالنسبة للمجالات المثالية</div>
+    </div>
+
+    <!-- إدخال البيانات -->
+    <div class="grid">
+      <div class="card">
+        <h3>المدخلات الأساسية</h3>
+        <div class="radios">
+          <label class="radio"><input type="radio" name="gender" value="male" checked><span>ذكر</span></label>
+          <label class="radio"><input type="radio" name="gender" value="female"><span>أنثى</span></label>
+        </div>
+        <div class="sp"></div>
+
+        <div class="row">
+          <div class="field">
+            <label>الوزن (كغ)</label>
+            <div class="range-val" id="w-val">70 كغ</div>
+            <div class="range-wrap"><input id="w" type="range" min="30" max="200" value="70"></div>
+          </div>
+          <div class="field">
+            <label>الطول (سم)</label>
+            <div class="range-val" id="h-val">170 سم</div>
+            <div class="range-wrap"><input id="h" type="range" min="120" max="220" value="170"></div>
+          </div>
+        </div>
+
+        <div class="sp"></div>
+        <div class="field">
+          <label>النشاط اليومي</label>
+          <div class="radios">
+            <label class="radio"><input type="radio" name="act" value="sedentary" checked><span>قليل</span></label>
+            <label class="radio"><input type="radio" name="act" value="light"><span>خفيف</span></label>
+            <label class="radio"><input type="radio" name="act" value="moderate"><span>متوسط</span></label>
+            <label class="radio"><input type="radio" name="act" value="active"><span>نشط</span></label>
+            <label class="radio"><input type="radio" name="act" value="very_active"><span>نشط جدًا</span></label>
+          </div>
+        </div>
+
+        <div class="sp"></div>
+        <div class="row">
+          <div class="field">
+            <label>وقت الاستيقاظ</label>
+            <div class="row">
+              <input id="wh" type="number" min="0" max="23" value="6" class="field">
+              <input id="wm" type="number" min="0" max="59" value="30" class="field">
+            </div>
+            <div class="small">صيغة 24 ساعة</div>
+          </div>
+          <div class="field">
+            <label>وقت النوم</label>
+            <div class="row">
+              <input id="sh" type="number" min="0" max="23" value="22" class="field">
+              <input id="sm" type="number" min="0" max="59" value="30" class="field">
+            </div>
+            <div class="small">صيغة 24 ساعة</div>
+          </div>
+        </div>
+        <div class="sp"></div>
+        <button class="btn" id="start">ابدأ التتبع</button>
+      </div>
+
+      <!-- مؤشرات -->
+      <div class="card">
+        <h3>مؤشرات سريعة (الحالي مقابل المثالي)</h3>
+        <div class="kpi">
+          <div class="kpi-box"><div class="k">BMI</div><div class="v" id="k-bmi">-</div></div>
+          <div class="kpi-box"><div class="k">وزن مثالي (نطاق)</div><div class="v" id="k-ideal">-</div></div>
+          <div class="kpi-box"><div class="k">ماء/اليوم</div><div class="v" id="k-water">-</div></div>
+        </div>
+        <div class="sp"></div>
+        <div class="small">المثالي وفق: BMI 18.5–24.9، شرب الماء ~ 0.035 لتر/كغ مع معامل للنشاط.</div>
       </div>
     </div>
-    <div class="segmented" id="langSeg">
-      <button data-lang="ar" class="active">العربية</button>
-      <button data-lang="en">English</button>
-    </div>
-  </header>
 
-  <div class="tabs" id="tabs">
-    <div class="tab active" data-tab="home">الترحيب</div>
-    <div class="tab" data-tab="bmi">BMI</div>
-    <div class="tab" data-tab="water">الماء</div>
-    <div class="tab" data-tab="protein">البروتين</div>
-    <div class="tab" data-tab="info">معلومات</div>
+    <div class="grid" id="dash" style="display:none">
+      <!-- مؤشر BMI -->
+      <div class="card">
+        <h3>مؤشر كتلة الجسم (BMI)</h3>
+        <div class="stat"><span>القيمة الحالية</span><span class="val" id="bmi-val">-</span></div>
+        <div class="stat"><span>التصنيف</span><span id="bmi-cat" class="small">-</span></div>
+        <div class="bar" id="bmi-bar">
+          <div class="band" id="bmi-band"></div>
+          <div class="fill" id="bmi-fill"></div>
+        </div>
+        <div class="ticks"><span>0</span><span>10</span><span>20</span><span>30</span><span>40</span></div>
+        <div class="small">الشريط الأصفر يوضح المجال المثالي (18.5–24.9)</div>
+      </div>
+
+      <!-- مؤشر الوزن مقابل المثالي -->
+      <div class="card">
+        <h3>الوزن الحالي مقابل الوزن المثالي</h3>
+        <div class="stat"><span>النطاق المثالي</span><span class="val" id="ideal-range">-</span></div>
+        <div class="stat"><span>المسافة لأقرب حد</span><span id="ideal-diff" class="small">-</span></div>
+        <div class="bar" id="w-bar">
+          <div class="fill" id="w-fill"></div>
+        </div>
+        <div class="ticks" id="w-ticks"></div>
+        <div class="small">يُحسب النطاق المثالي حسب طولك (BMI من 18.5 إلى 24.9).</div>
+      </div>
+
+      <!-- ماء -->
+      <div class="card">
+        <h3>شرب الماء — التقدم اليومي</h3>
+        <div class="stat"><span>المستهدف اليومي</span><span class="val" id="water-goal">-</span></div>
+        <div class="bar"><div class="fill" id="water-fill"></div></div>
+        <div class="ticks"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+        <div class="row-3" style="margin-top:8px">
+          <button class="btn" id="add-025">+0.25 لتر</button>
+          <button class="btn" id="add-050">+0.5 لتر</button>
+          <button class="btn danger" id="reset-water">تصفير</button>
+        </div>
+        <div class="stat"><span>مستهلك اليوم</span><span id="water-cons">0 لتر</span></div>
+        <div class="small" id="water-pct">0%</div>
+        <div class="list" id="water-list"></div>
+      </div>
+
+      <!-- بروتين -->
+      <div class="card">
+        <h3>البروتين — التقدم اليومي</h3>
+        <div class="stat"><span>الاحتياج</span><span class="val" id="prot-need">-</span></div>
+        <div class="bar"><div class="fill" id="prot-fill"></div></div>
+        <div class="ticks"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+        <div class="row-3" style="margin-top:8px">
+          <button class="btn" id="add-p10">+10 جم</button>
+          <button class="btn" id="add-p20">+20 جم</button>
+          <button class="btn danger" id="reset-prot">تصفير</button>
+        </div>
+        <div class="stat"><span>مستهلك اليوم</span><span id="prot-cons">0 جم</span></div>
+        <div class="small" id="prot-pct">0%</div>
+      </div>
+
+      <!-- سجل الوزن السريع -->
+      <div class="card">
+        <h3>سجل الوزن (آخر القيود)</h3>
+        <div class="row" style="margin-bottom:8px">
+          <input id="w-now" type="number" placeholder="وزنك الحالي" class="field">
+          <button class="btn" id="add-w-rec">إضافة</button>
+        </div>
+        <div class="list" id="w-list"></div>
+      </div>
+    </div>
   </div>
 
-  <!-- Home -->
-  <section id="home" class="card">
-    <h3 id="welcome_title">مرحبًا بك</h3>
-    <p id="welcome_body">هذا إصدار PWA يعمل كتطبيق ويُضاف إلى الشاشة الرئيسية. من قائمة المشاركة في Safari اختر: <b>إضافة إلى الشاشة الرئيسية</b>.</p>
-    <div class="hint" id="pwa_hint">بعد إضافته سيعمل في نافذة مستقلة ومن دون شريط المتصفح. يدعم العمل دون إنترنت بعد أول تشغيل.</div>
-  </section>
+  <script>
+    // حسابات أساسية
+    const F = {
+      bmi(w,h){const m=h/100;return w/(m*m)},
+      bmiCat(b){return b<18.5?'نحافة':b<25?'وزن صحي':b<30?'زيادة وزن':'سمنة'},
+      idealRange(h){ const m=h/100; return [18.5*m*m, 24.9*m*m]; },
+      waterGoal(w,act){const base=w*0.035;const f={sedentary:1,light:1.1,moderate:1.2,active:1.3,very_active:1.4}[act]||1;return +(base*f).toFixed(2)},
+      proteinNeed(w,act){const f={sedentary:1,light:1.2,moderate:1.4,active:1.6,very_active:1.8}[act]||1.2;return Math.round(w*f)},
+      awake(wh,wm,sh,sm){let h=sh-wh+(sm-wm)/60;if(h<=0)h+=24;return Math.round(h)}
+    };
 
-  <!-- BMI -->
-  <section id="bmi" class="card" style="display:none;">
-    <div class="row">
-      <div style="flex:1">
-        <label id="lblWeightKg">الوزن كجم</label>
-        <input id="bmiWeight" type="number" step="0.1" placeholder="70">
-      </div>
-      <div style="flex:1">
-        <label id="lblHeightCm">الطول سم</label>
-        <input id="bmiHeightCm" type="number" step="0.5" placeholder="170">
-      </div>
-    </div>
-    <label id="lblWaist">محيط الخصر سم</label>
-    <input id="bmiWaist" type="number" step="0.5" placeholder="85">
-    <div class="result-row"><span id="lblBMI">مؤشر كتلة الجسم</span><span class="value" id="bmiValue">—</span></div>
-    <div class="result-row"><span id="lblCat">الفئة</span><span class="value" id="bmiClass">—</span></div>
-    <div class="result-row"><span>WHtR</span><span class="value" id="whtrValue">—</span></div>
-    <div class="hint" id="bmiHint"></div>
-    <div class="footer" id="bmiNote">المؤشر أداة تحرّي فقط وليس تشخيصًا.</div>
-  </section>
+    // حالة
+    const S = {g:'male',w:70,h:170,act:'sedentary',wh:6,wm:30,sh:22,sm:30,
+               water:0, waterHist:[], prot:0, wHist:[]};
 
-  <!-- Water -->
-  <section id="water" class="card" style="display:none;">
-    <label id="lblWWeight">الوزن كجم</label>
-    <input id="wWeight" type="number" step="0.1" placeholder="70">
-    <label id="lblAct">دقائق النشاط يوميًا: <span id="actVal">0</span></label>
-    <input id="act" type="range" min="0" max="180" step="10" value="0">
-    <label id="lblMlKg">مل لكل كجم: <span id="mlkgVal">35</span></label>
-    <input id="mlkg" type="range" min="25" max="45" step="1" value="35">
-    <label id="lblCup">حجم الكوب (مل)</label>
-    <input id="cup" type="number" value="250">
-    <div class="result-row"><span id="lblMl">الاحتياج اليومي مل</span><span class="value" id="wMl">—</span></div>
-    <div class="result-row"><span id="lblL">الاحتياج اليومي لتر</span><span class="value" id="wL">—</span></div>
-    <div class="result-row"><span id="lblCups">عدد الأكواب يوميًا</span><span class="value" id="wCups">—</span></div>
-  </section>
+    const $=s=>document.querySelector(s);
+    const $$=s=>document.querySelectorAll(s);
+    const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
-  <!-- Protein -->
-  <section id="protein" class="card" style="display:none;">
-    <label id="lblPWeight">الوزن كجم</label>
-    <input id="pWeight" type="number" step="0.1" placeholder="70">
-    <div class="segmented" id="goalSeg" style="margin-top:10px;">
-      <button data-goal="maintenance" class="active">ثبات</button>
-      <button data-goal="fatLoss">نقص دهون</button>
-      <button data-goal="muscleGain">زيادة عضل</button>
-    </div>
-    <div class="result-row"><span id="lblRange">نطاق البروتين الموصى به</span><span class="value" id="pRange">—</span></div>
-  </section>
+    function save(){try{localStorage.setItem('BT_ind',JSON.stringify(S))}catch(e){}}
+    function load(){try{const x=localStorage.getItem('BT_ind'); if(x) Object.assign(S,JSON.parse(x))}catch(e){}}
 
-  <!-- Info -->
-  <section id="info" class="card" style="display:none;">
-    <h3 id="aboutTitle">حول</h3>
-    <p id="aboutBody">العلامة: حاسبة صحية / Health Calculator<br>الفريق: Binhawash — Eng:M.A</p>
-    <p class="hint" id="disclaimer">تنبيه: النتائج تقديرية وليست نصيحة طبية.</p>
-  </section>
-</div>
+    function initInputs(){
+      $$('input[name=gender]').forEach(r=>{r.checked=r.value===S.g; r.onchange=()=>{S.g=r.value; recalc();}});
+      $$('input[name=act]').forEach(r=>{r.checked=r.value===S.act; r.onchange=()=>{S.act=r.value; recalc();}});
+      const w=$('#w'), h=$('#h');
+      w.value=S.w; h.value=S.h;
+      $('#w-val').textContent=S.w+' كغ';
+      $('#h-val').textContent=S.h+' سم';
+      w.oninput=e=>{S.w=+e.target.value; $('#w-val').textContent=S.w+' كغ'; recalc();};
+      h.oninput=e=>{S.h=+e.target.value; $('#h-val').textContent=S.h+' سم'; recalc();};
+      $('#wh').value=S.wh; $('#wm').value=S.wm; $('#sh').value=S.sh; $('#sm').value=S.sm;
+      ['wh','wm','sh','sm'].forEach(id=>{$('#'+id).oninput=()=>{S[id]=+$('#'+id).value; recalc();};});
+      $('#start').onclick=()=>{$('#dash').style.display='grid'; recalc(); save();};
+    }
 
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js');
-  });
-}
+    function recalc(){
+      const b=F.bmi(S.w,S.h);
+      $('#k-bmi').textContent=b.toFixed(1);
+      $('#bmi-val').textContent=b.toFixed(1);
+      const cat=F.bmiCat(b);
+      $('#bmi-cat').textContent=cat;
 
-let lang = 'ar';
+      const maxB=40;
+      const pct=clamp((b/maxB)*100,0,100);
+      $('#bmi-fill').style.width=pct+'%';
+      const band=$('#bmi-band');
+      const idealA=(18.5/maxB)*100, idealB=(24.9/maxB)*100;
+      band.style.left=idealA+'%'; band.style.width=(idealB-idealA)+'%';
 
-function t(){
-  const ar = {
-    tabs: ['الترحيب','BMI','الماء','البروتين','معلومات'],
-    welcome_title:'مرحبًا بك',
-    welcome_body:'هذا إصدار PWA يعمل كتطبيق ويُضاف إلى الشاشة الرئيسية. من قائمة المشاركة في Safari اختر: "إضافة إلى الشاشة الرئيسية".',
-    pwa_hint:'بعد إضافته سيعمل في نافذة مستقلة ومن دون شريط المتصفح. يدعم العمل دون إنترنت بعد أول تشغيل.',
-    weightKg:'الوزن كجم', heightCm:'الطول سم', waistCm:'محيط الخصر سم',
-    bmi:'مؤشر كتلة الجسم', category:'الفئة', note:'المؤشر أداة تحرّي فقط وليس تشخيصًا.',
-    waterWeight:'الوزن كجم', act:'دقائق النشاط يوميًا', mlkg:'مل لكل كجم', cup:'حجم الكوب (مل)',
-    waterMl:'الاحتياج اليومي مل', waterL:'الاحتياج اليومي لتر', cups:'عدد الأكواب يوميًا',
-    proteinWeight:'الوزن كجم', range:'نطاق البروتين الموصى به',
-    goal: {maintenance:'ثبات', fatLoss:'نقص دهون', muscleGain:'زيادة عضل'},
-    about:'حول', aboutBody:'العلامة: حاسبة صحية / Health Calculator\nالفريق: Binhawash — Eng:M.A',
-    disclaimer:'تنبيه: النتائج تقديرية وليست نصيحة طبية.',
-    classes:{under:'نحافة', normal:'طبيعي', over:'زيادة وزن', obese:'سمنة'}
-  };
-  const en = {
-    tabs: ['Welcome','BMI','Water','Protein','Info'],
-    welcome_title:'Welcome',
-    welcome_body:'This PWA works like an app. In Safari, use "Add to Home Screen".',
-    pwa_hint:'After adding, it runs in standalone mode and works offline after first load.',
-    weightKg:'Weight kg', heightCm:'Height cm', waistCm:'Waist cm',
-    bmi:'Body Mass Index', category:'Category', note:'BMI is a screening tool, not a diagnosis.',
-    waterWeight:'Weight kg', act:'Activity minutes/day', mlkg:'mL per kg', cup:'Cup size (mL)',
-    waterMl:'Daily water mL', waterL:'Daily water L', cups:'Cups per day',
-    proteinWeight:'Weight kg', range:'Recommended protein range',
-    goal: {maintenance:'Maintain', fatLoss:'Fat loss', muscleGain:'Muscle gain'},
-    about:'About', aboutBody:'Brand: Health Calculator / حاسبة صحية\nTeam: Binhawash — Eng:M.A',
-    disclaimer:'Note: Estimates only; not medical advice.',
-    classes:{under:'Underweight', normal:'Normal', over:'Overweight', obese:'Obese'}
-  };
-  return lang==='ar' ? ar : en;
-}
+      const [wMin,wMax]=F.idealRange(S.h);
+      $('#k-ideal').textContent = `${wMin.toFixed(1)}–${wMax.toFixed(1)} كغ`;
+      $('#ideal-range').textContent = `${wMin.toFixed(1)} – ${wMax.toFixed(1)} كغ`;
+      let diff=0, dir='داخل النطاق';
+      if(S.w<wMin){diff=(wMin-S.w).toFixed(1); dir='دون الأدنى';}
+      else if(S.w>wMax){diff=(S.w-wMax).toFixed(1); dir='فوق الأعلى';}
+      $('#ideal-diff').textContent = (dir==='داخل النطاق') ? 'أنت داخل النطاق المثالي' : `${diff} كغ ${dir}`;
+      const lo=wMin*0.9, hi=wMax*1.1, p2=clamp(((S.w-lo)/(hi-lo))*100,0,100);
+      $('#w-fill').style.width=p2+'%';
+      $('#w-ticks').innerHTML = `<span>${lo.toFixed(0)}</span><span>${((lo+hi)/2).toFixed(0)}</span><span>${hi.toFixed(0)}</span>`;
 
-function switchLang(l){
-  lang = l;
-  document.documentElement.lang = l;
-  document.documentElement.dir = (l==='ar')?'rtl':'ltr';
-  const tr = t();
-  const tabs = document.querySelectorAll('#tabs .tab');
-  [0,1,2,3,4].forEach(i => tabs[i].textContent = tr.tabs[i]);
-  document.getElementById('welcome_title').textContent = tr.welcome_title;
-  document.getElementById('welcome_body').textContent = tr.welcome_body;
-  document.getElementById('pwa_hint').textContent = tr.pwa_hint;
-  document.getElementById('lblWeightKg').textContent = tr.weightKg;
-  document.getElementById('lblHeightCm').textContent = tr.heightCm;
-  document.getElementById('lblWaist').textContent = tr.waistCm;
-  document.getElementById('lblBMI').textContent = tr.bmi;
-  document.getElementById('lblCat').textContent = tr.category;
-  document.getElementById('bmiNote').textContent = tr.note;
-  document.getElementById('lblWWeight').textContent = tr.waterWeight;
-  document.getElementById('lblAct').childNodes[0].nodeValue = tr.act + ': ';
-  document.getElementById('lblMlKg').childNodes[0].nodeValue = tr.mlkg + ': ';
-  document.getElementById('lblCup').textContent = tr.cup;
-  document.getElementById('lblMl').textContent = tr.waterMl;
-  document.getElementById('lblL').textContent = tr.waterL;
-  document.getElementById('lblCups').textContent = tr.cups;
-  document.getElementById('lblPWeight').textContent = tr.proteinWeight;
-  document.getElementById('lblRange').textContent = tr.range;
-  document.querySelector('#goalSeg button[data-goal="maintenance"]').textContent = tr.goal.maintenance;
-  document.querySelector('#goalSeg button[data-goal="fatLoss"]').textContent = tr.goal.fatLoss;
-  document.querySelector('#goalSeg button[data-goal="muscleGain"]').textContent = tr.goal.muscleGain;
-  document.getElementById('aboutTitle').textContent = tr.about;
-  document.getElementById('aboutBody').innerHTML = tr.aboutBody.replaceAll("\n","<br>");
-  document.getElementById('disclaimer').textContent = tr.disclaimer;
-}
+      const goal=F.waterGoal(S.w,S.act);
+      $('#k-water').textContent=goal+' لتر';
+      $('#water-goal').textContent=goal+' لتر';
+      const wpct = clamp((S.water/goal)*100,0,100);
+      $('#water-fill').style.width=wpct+'%';
+      $('#water-cons').textContent=`${S.water.toFixed(2)} لتر`;
+      $('#water-pct').textContent=Math.round(wpct)+'%';
 
-document.querySelectorAll('#langSeg button').forEach(b=> b.addEventListener('click', e=>{
-  document.querySelectorAll('#langSeg button').forEach(x=> x.classList.remove('active'));
-  b.classList.add('active');
-  switchLang(b.dataset.lang);
-}));
+      const pNeed=F.proteinNeed(S.w,S.act);
+      $('#prot-need').textContent=pNeed+' جم/يوم';
+      const ppct = clamp((S.prot/pNeed)*100,0,100);
+      $('#prot-fill').style.width=ppct+'%';
+      $('#prot-cons').textContent=S.prot+' جم';
+      $('#prot-pct').textContent=Math.round(ppct)+'%';
+      save();
+    }
 
-document.write('<div class="tabs" id="tabs"><div class="tab active" data-tab="home">الترحيب</div><div class="tab" data-tab="bmi">BMI</div><div class="tab" data-tab="water">الماء</div><div class="tab" data-tab="protein">البروتين</div><div class="tab" data-tab="info">معلومات</div></div>');
+    function bindWaterProteinWeight(){
+      $('#add-025').onclick=()=>{S.water+=0.25; S.waterHist.push({t:Date.now(),a:0.25}); renderWaterList(); recalc();};
+      $('#add-050').onclick=()=>{S.water+=0.5; S.waterHist.push({t:Date.now(),a:0.5}); renderWaterList(); recalc();};
+      $('#reset-water').onclick=()=>{S.water=0; recalc(); renderWaterList();};
+      $('#add-p10').onclick=()=>{S.prot+=10; recalc();};
+      $('#add-p20').onclick=()=>{S.prot+=20; recalc();};
+      $('#reset-prot').onclick=()=>{S.prot=0; recalc();};
+      $('#add-w-rec').onclick=()=>{
+        const v=parseFloat($('#w-now').value);
+        if(!v||v<=0){alert('أدخل وزنًا صحيحًا');return;}
+        S.wHist.push({t:Date.now(),w:v}); S.w=v; $('#w').value=v; $('#w-val').textContent=v+' كغ';
+        $('#w-now').value=''; renderWList(); recalc();
+      };
+    }
 
-document.getElementById('tabs').addEventListener('click', (e)=>{
-  if(!e.target.classList.contains('tab')) return;
-  document.querySelectorAll('#tabs .tab').forEach(x=> x.classList.remove('active'));
-  e.target.classList.add('active');
-  const tab = e.target.dataset.tab;
-  ['home','bmi','water','protein','info'].forEach(id => document.getElementById(id).style.display = 'none');
-  document.getElementById(tab).style.display = 'block';
-});
+    function renderWaterList(){
+      const box=$('#water-list');
+      if(S.waterHist.length===0){ box.innerHTML='<div class="small" style="padding:8px">لا توجد قيود اليوم.</div>'; return; }
+      const today=new Date(); today.setHours(0,0,0,0);
+      const items = S.waterHist.filter(r=>{const d=new Date(r.t); d.setHours(0,0,0,0); return d.getTime()===today.getTime();})
+        .sort((a,b)=>b.t-a.t).slice(0,30)
+        .map(r=>{
+          const d=new Date(r.t);
+          const ti=d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+          return `<div class="item"><span>${ti}</span><span>+${r.a.toFixed(2)} لتر</span></div>`;
+        }).join('');
+      box.innerHTML = items || '<div class="small" style="padding:8px">لا توجد قيود اليوم.</div>';
+    }
 
-function fmt(n, dec=1){ return (!isFinite(n))? '—' : n.toLocaleString(lang==='ar'?'ar':'en', {maximumFractionDigits:dec, minimumFractionDigits:0}); }
-function computeBMI(){
-  const kg = parseFloat(document.getElementById('bmiWeight').value);
-  const cm = parseFloat(document.getElementById('bmiHeightCm').value);
-  const waist = parseFloat(document.getElementById('bmiWaist').value);
-  if (!kg || !cm){ document.getElementById('bmiValue').textContent='—'; document.getElementById('bmiClass').textContent='—'; document.getElementById('whtrValue').textContent='—'; document.getElementById('bmiHint').textContent=''; return; }
-  const h=cm/100, bmi=kg/(h*h); const c=t().classes;
-  let klass = bmi<18.5? c.under : bmi<25? c.normal : bmi<30? c.over : c.obese;
-  document.getElementById('bmiValue').textContent = fmt(bmi,1);
-  document.getElementById('bmiClass').textContent = klass;
-  if (waist){ const whtr = waist/cm; document.getElementById('whtrValue').textContent = fmt(whtr,2); }
-  const minW=18.5*h*h, maxW=24.9*h*h;
-  document.getElementById('bmiHint').innerHTML = (lang==='ar'?'النطاق الصحي: ':'Healthy range: ') + `<b>${fmt(minW,1)} – ${fmt(maxW,1)} kg</b>`;
-}
-function computeWater(){
-  const kg = parseFloat(document.getElementById('wWeight').value);
-  const act = parseFloat(document.getElementById('act').value);
-  const mlkg = parseFloat(document.getElementById('mlkg').value);
-  const cup = parseFloat(document.getElementById('cup').value)||250;
-  document.getElementById('actVal').textContent = fmt(act,0);
-  document.getElementById('mlkgVal').textContent = fmt(mlkg,0);
-  if (!kg){ document.getElementById('wMl').textContent='—'; document.getElementById('wL').textContent='—'; document.getElementById('wCups').textContent='—'; return; }
-  const total = kg*mlkg + (act/30)*500;
-  document.getElementById('wMl').textContent = fmt(total,0);
-  document.getElementById('wL').textContent = (total/1000).toLocaleString(lang==='ar'?'ar':'en', {maximumFractionDigits:2});
-  document.getElementById('wCups').textContent = (total/cup).toLocaleString(lang==='ar'?'ar':'en', {maximumFractionDigits:1});
-}
-function computeProtein(){
-  const kg = parseFloat(document.getElementById('pWeight').value);
-  const goal = document.querySelector('#goalSeg .active').dataset.goal;
-  let min=0, max=0;
-  if (kg){
-    if (goal==='maintenance'){ min=0.8*kg; max=1.0*kg; }
-    if (goal==='fatLoss'){ min=1.2*kg; max=1.6*kg; }
-    if (goal==='muscleGain'){ min=1.6*kg; max=2.2*kg; }
-  }
-  const unit = (lang==='ar')?'جرام/يوم':'g/day';
-  document.getElementById('pRange').textContent = kg? `${fmt(min,0)} – ${fmt(max,0)} ${unit}` : '—';
-}
-['bmiWeight','bmiHeightCm','bmiWaist'].forEach(id => document.getElementById(id).addEventListener('input', computeBMI));
-['wWeight','act','mlkg','cup'].forEach(id => document.getElementById(id).addEventListener('input', computeWater));
-document.getElementById('pWeight').addEventListener('input', computeProtein);
-document.querySelectorAll('#goalSeg button').forEach(b=> b.addEventListener('click', e=>{
-  document.querySelectorAll('#goalSeg button').forEach(x=> x.classList.remove('active'));
-  b.classList.add('active'); computeProtein();
-}));
-switchLang('ar'); computeBMI(); computeWater(); computeProtein();
-</script>
+    function renderWList(){
+      const box=$('#w-list');
+      if(S.wHist.length===0){ box.innerHTML='<div class="small" style="padding:8px">لا توجد قيود.</div>'; return; }
+      const items=S.wHist.sort((a,b)=>b.t-a.t).slice(0,20).map(r=>{
+        const d=new Date(r.t);
+        const ds=d.toLocaleDateString('en-GB');
+        const ts=d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+        return `<div class="item"><span>${ds} ${ts}</span><span>${r.w} كغ</span></div>`;
+      }).join('');
+      box.innerHTML=items;
+    }
+
+    document.addEventListener('DOMContentLoaded',()=>{
+      load();
+      initInputs();
+      bindWaterProteinWeight();
+      if(S.wHist.length || S.water>0 || S.prot>0){ $('#dash').style.display='grid'; }
+      renderWaterList(); renderWList();
+      recalc();
+    });
+  </script>
 </body>
 </html>
